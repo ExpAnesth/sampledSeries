@@ -4,9 +4,8 @@ function d=elim_hum(d,si,f,varargin)
 % frequency domain, the magnitude of the signal in frequency range
 % f +/- sExt Hz (default: 0.2) to values in the surround (f +/- estHalfWid Hz;
 % default: 0.4). si is the sampling interval of the data in µs; f is the
-% array of hum center frequencies to be treated this way. If 
-
-
+% array of hum center frequencies to be treated this way. 
+%
 %                    >>> INPUT VARIABLES >>>
 % NAME            TYPE/DEFAULT           DESCRIPTION
 % d               array (up to 3D)       sampled data, time runs along column
@@ -14,7 +13,8 @@ function d=elim_hum(d,si,f,varargin)
 % f               array                  frequencies to be eliminated
 % substHalfWid   scalar, 0.2             substitution half width (Hz)
 % estHalfWid     scalar, 1.0             estimation half width (Hz)
-% searchHalfWid  scalar, 1.0             peak search half width (Hz)
+% searchHalfWid  scalar, 1.0             peak search half width (Hz); set
+%                                         to [] to prevent fine-tuning of f
 %
 %                  <<< OUTPUT VARIABLES <<<
 % NAME        TYPE/DEFAULT            DESCRIPTION
@@ -82,6 +82,9 @@ for g=1:nF
   % - index to frequencies to be substituted
   fSubstIx=freq>=fSubst(g,1) & freq<=fSubst(g,2);
   fEstIx=(freq>=fEst(g,1) & freq<=fEst(g,2)) & ~fSubstIx;
+  if ~any(fEstIx)
+      error('fEstIx is all zeroes - estHalfWid will have to be widened')
+  end
   mag(fSubstIx,:,:)=repmat(mean(mag(fEstIx,:,:)),[numel(find(fSubstIx)), 1, 1]);
 end
 % convert back
